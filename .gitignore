@@ -218,3 +218,15 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- project additions --
+.venv/
+data/*
+!data/README.md
+reports/
+config/config.json
+.env
+*.pem
+.aws/
+__pycache__/
+.pytest_cache/
