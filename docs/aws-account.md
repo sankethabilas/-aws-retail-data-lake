@@ -2,11 +2,11 @@
 
 | Item | Status |
 |---|---|
-| Account plan (Free / Paid, per the AWS Free Tier page) | _TODO_ |
-| Root user MFA enabled | _TODO_ |
-| Daily-use IAM / Identity Center user created (root not used) | _TODO_ |
-| Budget (Zero spend or Monthly cost template, $1 email alert) | _TODO_ |
-| Budget alert email confirmed | _TODO_ |
-| Free Tier usage alerts enabled (if plan offers them) | _TODO_ |
+| Account plan (Free / Paid, per the AWS Free Tier page) | Done |
+| Root user MFA enabled | Done |
+| Daily-use IAM / Identity Center user created (root not used) | Done |
+| Budget (Zero spend or Monthly cost template, $1 email alert) | Done |
+| Budget alert email confirmed | Done |
+| Free Tier usage alerts enabled (if plan offers them) | Done |
 
-Checked on: _YYYY-MM-DD_
+Checked on: 2026-10-20
