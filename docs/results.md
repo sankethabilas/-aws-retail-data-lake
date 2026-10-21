@@ -43,3 +43,28 @@ There are 9,251 cancellation rows after deduplication, compared with 9,288 in th
 
 Running the pipeline twice produced manifests that differed only in `run_at_utc` and `seconds`.
 All row counts, net revenue, file count and byte size were identical.
+
+## Day 5: CSV vs Parquet
+
+Measured on 2026-10-22 on the same machine and library versions as Day 4.
+Read times are the average of 3 runs. The CSV was read with `dtype=str`, the way the pipeline reads it.
+
+| Measurement | Source CSV | Curated Parquet (snappy) |
+|---|---|---|
+| Size on disk | 47,758,972 bytes (45.5 MB) | 5,565,804 bytes (5.3 MB) |
+| Files | 1 | 13 (one per `year=/month=` partition) |
+| Rows | 541,909 | 536,639 |
+| Read all columns into pandas | 0.606 s | 0.043 s |
+| Read only `revenue` | n/a (CSV must be parsed in full) | 0.009 s |
+
+The Parquet output is 8.6x smaller than the CSV (88% less storage) and about 14x faster to read in full.
+Reading a single column is faster again, because Parquet is columnar.
+The Day 8 Athena bytes-scanned comparison should show the same effect.
+
+### Tests
+
+`pytest -q --cov=src` gives 15 passed in 0.6 s, with 56% line coverage of `src/`.
+- `transform_data.py` is at 100% coverage.
+- The uncovered lines are the CLI `__main__` blocks and the download and profiling scripts, which need the real dataset.
+
+CI runs `ruff check src tests` and the same pytest command on every push and pull request (`.github/workflows/tests.yml`).
