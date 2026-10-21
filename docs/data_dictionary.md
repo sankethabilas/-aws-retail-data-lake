@@ -44,3 +44,31 @@ The rejection is based on the price, not on the invoice number starting with `A`
 - `stock_code` is upper-cased.
 - `customer_id` is stored as text without the trailing `.0` (`"17850.0"` becomes `"17850"`).
 - Column names are converted to snake_case.
+
+## Curated columns
+
+`src/transform_data.py` writes these columns to `data/curated/sales/` as snappy-compressed Parquet, partitioned as `year=YYYY/month=M`.
+
+| Column | Type | Meaning | Rule | Example |
+|---|---|---|---|---|
+| `invoice_no` | string | Invoice number | Trimmed; `C` prefix means cancellation | `536365` |
+| `stock_code` | string | Product code | Trimmed, upper-cased | `85123A` |
+| `description` | string | Product name | Trimmed; may be NULL | `WHITE HANGING HEART T-LIGHT HOLDER` |
+| `quantity` | int64 | Units on the line | Non-zero whole number; negative for cancellations and adjustments | `6` |
+| `invoice_date` | timestamp (ms) | Invoice date and time | Millisecond precision so Athena reads it reliably | `2010-12-01 08:26:00` |
+| `unit_price` | double | Price per unit (GBP) | ≥ 0 | `2.55` |
+| `customer_id` | string | Customer number | NULL when the source has none; never invented | `17850` |
+| `country` | string | Customer country | Trimmed | `United Kingdom` |
+| `is_cancellation` | boolean | Line is on a cancellation invoice | `invoice_no` starts with `C` | `false` |
+| `transaction_type` | string | Line type | `CANCELLATION` if a cancellation, else `ADJUSTMENT` if quantity < 0, else `SALE` | `SALE` |
+| `revenue` | double | Line value | `quantity × unit_price`, rounded to 2 dp; negative for cancellations | `15.3` |
+| `year` | int (partition) | Invoice year | From `invoice_date` | `2010` |
+| `month` | int (partition) | Invoice month, 1–12 | From `invoice_date` | `12` |
+
+### Business rules
+
+- **Cancellations are kept.** Their negative revenue reduces net revenue.
+- **Stock adjustments** (negative quantity, not a cancellation, price 0) are kept as `ADJUSTMENT` and excluded from product sales rankings.
+- **Net revenue** is `SUM(revenue)` over all rows. **Gross revenue** is `SUM(revenue)` over `SALE` rows only.
+- **Exact duplicates** (all 8 source columns identical after cleaning) are dropped, keeping the first copy. The same product repeated on one invoice with different values is kept.
+- **Reruns replace** the whole curated folder, so running the pipeline twice never duplicates data.
