@@ -1,5 +1,7 @@
 # Retail Sales Data Lake on AWS
 
+[![tests](https://github.com/sankethabilas/-aws-retail-data-lake/actions/workflows/tests.yml/badge.svg)](https://github.com/sankethabilas/-aws-retail-data-lake/actions/workflows/tests.yml)
+
 > Draft. This README is filled in as the project is built.
 
 A batch data pipeline that turns a retailer's raw transaction export into a queryable data lake on AWS.
@@ -80,7 +82,7 @@ UCI Online Retail (.xlsx)
 |---|---|
 | Project setup and AWS guardrails | Done |
 | Download and profiling ([docs/profiling.md](docs/profiling.md)) | Done |
-| Validation, transformation, tests and CI | Planned |
+| Validation, transformation, tests and CI ([docs/results.md](docs/results.md)) | Done |
 | S3, Glue Data Catalog, Athena | Planned |
 
 ## Quick start
@@ -91,6 +93,8 @@ python -m venv .venv
 pip install -r requirements.txt -r requirements-dev.txt
 python -m src.download_data   # creates data/raw/online_retail.csv
 python -m src.profile_data    # prints the profiling counts
+python -m src.run_pipeline    # validate, transform, write Parquet + reports
+pytest -q                     # run the test suite
 ```
 
 ## Dataset
